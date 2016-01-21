@@ -15,9 +15,14 @@
 # website:	    http://httphacker.com
 # twitter:	    @httphacker
 # version:	    0.1
-
+#
+# email:    jfigueiredo@hexcode.org
+# version:  0.2
 import sys
 import urllib2
+import re
+USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0"
+LANG =  "en-US,en"
 
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
@@ -48,9 +53,24 @@ if len(sys.argv) < 2:
   printout('Example: python gethead.py http://www.google.com\n\n', WHITE)
   sys.exit()
 else:
-  response = urllib2.urlopen(sys.argv[1])
-  print 
-  printout('HTTP Header Analysis for ' + sys.argv[1] + ':' + '\n\n', CYAN)
+  m = re.search( r'^https?://', sys.argv[1])
+  if m:
+    try:
+      #response = urllib2.urlopen(sys.argv[1])
+      _open = urllib2.build_opener()
+      _open.addheaders = [('User-agent', USERAGENT),("Accept-Language", LANG), ("Accept", "text/html")]
+      response = _open.open(sys.argv[1])
+    except urllib2.URLError, e:
+      print 
+      printout("Error to connect to " + sys.argv[1] + "\n" , RED)
+      printout("Returned: " + str(e.code) + "\n\n", RED)
+      sys.exit(1)
+    print 
+    printout('HTTP Header Analysis for ' + sys.argv[1] + ':' + '\n\n', CYAN)
+  else:
+    print
+    printout('Please provide http or https\n\n',  RED)
+    sys.exit(1)
 
 # check x-xss-protection:
 if response.info().getheader('x-xss-protection') == '1; mode=block':
