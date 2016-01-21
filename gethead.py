@@ -18,9 +18,12 @@
 #
 # email:    jfigueiredo@hexcode.org
 # version:  0.2
+
 import sys
 import urllib2
 import re
+
+
 USERAGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0"
 LANG =  "en-US,en"
 
@@ -134,3 +137,19 @@ if response.info().getheader('cache-control'):
 else:
   printout('Vulnerability ', RED)
   printout('- Server does not enforce a Content Cacheing Policy.\nThe Cache-control Header setting is either inadequate or missing.\nClient may be vulnerable to Content Caching Attacks.\n\n', WHITE)
+
+#check if have httponly flag and secure flag on the cookie
+if "httponly" in response.info().getheader('set-cookie').lower():
+  if "secure" in response.info().getheader('set-cookie').lower() and "https://" in sys.argv[1]:
+    printout('(Set-Cookie with HttpOnly and Secure) Cookie with HttpOnly flag and Secure flag are enforced\n\n', GREEN)
+  else:
+    printout('(Set-Cookie with HttpOnly) Cookie with HttpOnly flag are enforced\n\n', YELLOW)
+else:
+  printout('Vulnerability ', RED)
+  printout('- Server doest not enforce the HttpOnly flag.\nThe HttpOnly flag are missing on the cookie.\nClient are vulnerable\n\n', WHITE)
+
+
+
+
+
+
